@@ -1,0 +1,29 @@
+name: 'build-test'
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  pull_request_review:
+  push:
+    branches:
+      - main
+      - 'releases/*'
+
+jobs:
+  # build: # make sure build/ci work properly
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - run: |
+  #         npm install
+  #     - run: |
+  #         npm run all
+  test: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          #upstream-uri: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+          #upstream-uri: file://linux-6.4
+          upstream-uri: https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.tar.xz
+          patches: "samples/*.patch"
+          token: ${{ secrets.GITHUB_TOKEN }}

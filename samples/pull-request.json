@@ -1,0 +1,19 @@
+{
+  "repository": {
+    "owner": {
+      "name": "kodebooth"
+    },
+    "name": "patch-review",
+    "clone_url": "https://github.com/kodebooth/patch-review.git"
+  },
+  "pull_request": {
+    "id": 10,
+    "head": {
+      "ref": "test",
+      "sha": "731c8cd55a8a6d8e4e85fc5928adebbe1b07b4e7"
+    },
+    "base": {
+      "ref": "main"
+    }
+  }
+}
