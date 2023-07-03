@@ -2,10 +2,26 @@ name: 'Your name here'
 description: 'Provide a description here'
 author: 'Your name or organization here'
 inputs:
-  milliseconds: # change this
+  upstream-uri:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'URI of the upstream project'
+  upstream-token:
+    required: false
+    description: 'Token to access upstream project'
+  patches:
+    required: true
+    description: 'Glob for local patch files'
+  token:
+    required: false
+    description: 'Token to access project'
+  follow-symbolic-links:
+    description: 'Indicates whether to follow symbolic links'
+    default: true
+  wrkdir:
+    requires: true
+    default: wrkdir
+    description: 'Name of the working directory'
+
 runs:
   using: 'node16'
   main: 'dist/index.js'
