@@ -30,8 +30,8 @@ async function doPullRequest(): Promise<void> {
 
   const authorizedUri = AuthorizedUriFactory.create(cloneUrl)
 
-  const wrkdirGitClient = new GitClient(authorizedUri, wrkdir, gitPrefix)
-  const gitClient = new GitClient(authorizedUri, path.resolve(), gitPrefix)
+  const wrkdirGitClient = new GitClient(wrkdir, gitPrefix, authorizedUri)
+  const gitClient = new GitClient(path.resolve(), gitPrefix)
 
   core.startGroup('Create upstream baseline')
   await fetcher.fetch(wrkdir)

@@ -2,16 +2,17 @@ import {SimpleGit, simpleGit} from 'simple-git'
 import {AuthorizedUri} from './internal-authorized-uri'
 import * as io from '@actions/io'
 import * as exec from '@actions/exec'
+import * as core from '@actions/core'
 
 export class GitClient {
-  authorizedUri: AuthorizedUri
+  authorizedUri: AuthorizedUri | undefined
   gitClient: SimpleGit
-  remote = 'patch-review'
+  remote = 'origin'
   wrkdir: string
   prefix: string
   inited = false
 
-  constructor(uri: AuthorizedUri, wrkdir: string, prefix: string) {
+  constructor(wrkdir: string, prefix: string, uri?: AuthorizedUri) {
     this.authorizedUri = uri
     this.wrkdir = wrkdir
     this.prefix = prefix
@@ -26,7 +27,14 @@ export class GitClient {
       .init()
       .addConfig('user.name', 'patch-review[bot]')
       .addConfig('user.email', 'patch-review[bot]')
-      .addRemote(this.remote, this.authorizedUri.uri)
+
+    if (typeof this.authorizedUri !== 'undefined') {
+      try {
+        this.gitClient.addRemote(this.remote, this.authorizedUri.uri)
+      } catch (error) {
+        core.error(JSON.stringify(error))
+      }
+    }
 
     this.inited = true
   }
@@ -54,6 +62,12 @@ export class GitClient {
 
   async checkoutHasPrefix(tag: string): Promise<void> {
     await this.init()
+
+    try {
+      await this.gitClient.fetch(tag)
+    } catch (error) {
+      core.error(JSON.stringify(error))
+    }
 
     await this.gitClient.checkout(tag, ['--force'])
   }

@@ -281,9 +281,10 @@ exports.GitClient = void 0;
 const simple_git_1 = __nccwpck_require__(9103);
 const io = __importStar(__nccwpck_require__(7436));
 const exec = __importStar(__nccwpck_require__(1514));
+const core = __importStar(__nccwpck_require__(2186));
 class GitClient {
-    constructor(uri, wrkdir, prefix) {
-        this.remote = 'patch-review';
+    constructor(wrkdir, prefix, uri) {
+        this.remote = 'origin';
         this.inited = false;
         this.authorizedUri = uri;
         this.wrkdir = wrkdir;
@@ -298,8 +299,15 @@ class GitClient {
             yield this.gitClient
                 .init()
                 .addConfig('user.name', 'patch-review[bot]')
-                .addConfig('user.email', 'patch-review[bot]')
-                .addRemote(this.remote, this.authorizedUri.uri);
+                .addConfig('user.email', 'patch-review[bot]');
+            if (typeof this.authorizedUri !== 'undefined') {
+                try {
+                    this.gitClient.addRemote(this.remote, this.authorizedUri.uri);
+                }
+                catch (error) {
+                    core.error(JSON.stringify(error));
+                }
+            }
             this.inited = true;
         });
     }
@@ -326,6 +334,12 @@ class GitClient {
     checkoutHasPrefix(tag) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.init();
+            try {
+                yield this.gitClient.fetch(tag);
+            }
+            catch (error) {
+                core.error(JSON.stringify(error));
+            }
             yield this.gitClient.checkout(tag, ['--force']);
         });
     }
@@ -496,8 +510,8 @@ function doPullRequest() {
         const fetcher = internal_fetcher_1.FetcherFactory.create(upstreamUri);
         const patcher = internal_patcher_1.PatcherFactory.create(core.getInput('patches'));
         const authorizedUri = internal_authorized_uri_1.AuthorizedUriFactory.create(cloneUrl);
-        const wrkdirGitClient = new internal_git_1.GitClient(authorizedUri, wrkdir, gitPrefix);
-        const gitClient = new internal_git_1.GitClient(authorizedUri, path_1.default.resolve(), gitPrefix);
+        const wrkdirGitClient = new internal_git_1.GitClient(wrkdir, gitPrefix, authorizedUri);
+        const gitClient = new internal_git_1.GitClient(path_1.default.resolve(), gitPrefix);
         core.startGroup('Create upstream baseline');
         yield fetcher.fetch(wrkdir);
         yield io.cp('.github', `${path_1.default.join(wrkdir, '.github')}`, { recursive: true });
