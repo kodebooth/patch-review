@@ -540,7 +540,7 @@ function doPullRequest() {
         console.log(JSON.stringify(octokit));
         console.log(JSON.stringify(pullRequestPayload));
         const pullList = yield octokit.rest.pulls.list({
-            owner: pullRequestPayload.repository.owner.name,
+            owner: pullRequestPayload.repository.owner.login,
             repo: pullRequestPayload.repository.name,
             state: 'open',
             base: wrkdirGitClient.addPrefix('base'),
@@ -553,7 +553,7 @@ function doPullRequest() {
         }
         else {
             const createdPull = yield octokit.rest.pulls.create({
-                owner: pullRequestPayload.repository.owner.name,
+                owner: pullRequestPayload.repository.owner.login,
                 repo: pullRequestPayload.repository.name,
                 title: gitPrefix,
                 base: wrkdirGitClient.addPrefix('base'),
@@ -562,14 +562,14 @@ function doPullRequest() {
             pull = createdPull.data;
         }
         const labels = yield octokit.rest.issues.listLabelsOnIssue({
-            owner: pullRequestPayload.repository.owner.name,
+            owner: pullRequestPayload.repository.owner.login,
             repo: pullRequestPayload.repository.name,
             issue_number: pull.number
         });
         for (const label of labels.data) {
             if (label.name.startsWith('patch-review-')) {
                 yield octokit.rest.issues.deleteLabel({
-                    owner: pullRequestPayload.repository.owner.name,
+                    owner: pullRequestPayload.repository.owner.login,
                     repo: pullRequestPayload.repository.name,
                     name: label.name
                 });

@@ -67,7 +67,7 @@ async function doPullRequest(): Promise<void> {
   console.log(JSON.stringify(pullRequestPayload))
 
   const pullList = await octokit.rest.pulls.list({
-    owner: pullRequestPayload.repository.owner.name!,
+    owner: pullRequestPayload.repository.owner.login!,
     repo: pullRequestPayload.repository.name,
     state: 'open',
     base: wrkdirGitClient.addPrefix('base'),
@@ -81,7 +81,7 @@ async function doPullRequest(): Promise<void> {
     pull = pullList.data[0]
   } else {
     const createdPull = await octokit.rest.pulls.create({
-      owner: pullRequestPayload.repository.owner.name!,
+      owner: pullRequestPayload.repository.owner.login!,
       repo: pullRequestPayload.repository.name,
       title: gitPrefix,
       base: wrkdirGitClient.addPrefix('base'),
@@ -91,7 +91,7 @@ async function doPullRequest(): Promise<void> {
   }
 
   const labels = await octokit.rest.issues.listLabelsOnIssue({
-    owner: pullRequestPayload.repository.owner.name!,
+    owner: pullRequestPayload.repository.owner.login!,
     repo: pullRequestPayload.repository.name,
     issue_number: pull.number
   })
@@ -99,7 +99,7 @@ async function doPullRequest(): Promise<void> {
   for (const label of labels.data) {
     if (label.name.startsWith('patch-review-')) {
       await octokit.rest.issues.deleteLabel({
-        owner: pullRequestPayload.repository.owner.name!,
+        owner: pullRequestPayload.repository.owner.login!,
         repo: pullRequestPayload.repository.name,
         name: label.name
       })
