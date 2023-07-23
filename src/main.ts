@@ -22,8 +22,8 @@ async function doPullRequest(): Promise<void> {
   const cloneUrl = pullRequestPayload.repository.clone_url
   const baseRef = pullRequestPayload.pull_request.base.ref
   const headSha = pullRequestPayload.pull_request.head.sha
-  const id = pullRequestPayload.pull_request.id
-  const gitPrefix = `patch-review-${id}`
+  const number = pullRequestPayload.pull_request.number
+  const gitPrefix = `patch-review-${number}`
 
   const fetcher = FetcherFactory.create(upstreamUri)
   const patcher = PatcherFactory.create(core.getInput('patches'))

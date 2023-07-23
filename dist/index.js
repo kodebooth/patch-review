@@ -505,8 +505,8 @@ function doPullRequest() {
         const cloneUrl = pullRequestPayload.repository.clone_url;
         const baseRef = pullRequestPayload.pull_request.base.ref;
         const headSha = pullRequestPayload.pull_request.head.sha;
-        const id = pullRequestPayload.pull_request.id;
-        const gitPrefix = `patch-review-${id}`;
+        const number = pullRequestPayload.pull_request.number;
+        const gitPrefix = `patch-review-${number}`;
         const fetcher = internal_fetcher_1.FetcherFactory.create(upstreamUri);
         const patcher = internal_patcher_1.PatcherFactory.create(core.getInput('patches'));
         const authorizedUri = internal_authorized_uri_1.AuthorizedUriFactory.create(cloneUrl);
