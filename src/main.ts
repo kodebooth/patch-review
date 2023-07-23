@@ -63,6 +63,8 @@ async function doPullRequest(): Promise<void> {
   await wrkdirGitClient.push('diffhead')
   const octokit = github.getOctokit(core.getInput('token'))
 
+  console.log(JSON.stringify(octokit))
+
   const pullList = await octokit.rest.pulls.list({
     owner: pullRequestPayload.repository.owner.name!,
     repo: pullRequestPayload.repository.name,
@@ -70,6 +72,8 @@ async function doPullRequest(): Promise<void> {
     base: wrkdirGitClient.addPrefix('base'),
     head: wrkdirGitClient.addPrefix('diffhead')
   })
+
+  console.log(JSON.stringify(pullList))
 
   let pull
   if (pullList.data.length) {
