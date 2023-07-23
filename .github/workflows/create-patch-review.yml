@@ -21,6 +21,12 @@ jobs:
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
+      - name: Generate a token
+        id: generate_token
+        uses: tibdex/github-app-token@b62528385c34dbc9f38e5f4225ac829252d1ea92
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
       - uses: actions/checkout@v3
       - uses: ./
         with:
@@ -28,4 +34,4 @@ jobs:
           #upstream-uri: file://linux-6.4
           upstream-uri: https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.4.tar.xz
           patches: "samples/*.patch"
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ steps.generate_token.outputs.token }}
