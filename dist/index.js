@@ -559,6 +559,7 @@ function doPullRequest() {
                 base: wrkdirGitClient.addPrefix('base'),
                 head: wrkdirGitClient.addPrefix('diffhead')
             });
+            console.log(JSON.stringify(createdPull));
             pull = createdPull.data;
         }
         const labels = yield octokit.rest.issues.listLabelsOnIssue({

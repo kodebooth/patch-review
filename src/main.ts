@@ -87,6 +87,7 @@ async function doPullRequest(): Promise<void> {
       base: wrkdirGitClient.addPrefix('base'),
       head: wrkdirGitClient.addPrefix('diffhead')
     })
+    console.log(JSON.stringify(createdPull))
     pull = createdPull.data
   }
 
