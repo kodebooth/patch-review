@@ -567,6 +567,7 @@ function doPullRequest() {
             repo: pullRequestPayload.repository.name,
             issue_number: pull.number
         });
+        console.log(JSON.stringify(labels));
         for (const label of labels.data) {
             if (label.name.startsWith('patch-review-')) {
                 yield octokit.rest.issues.deleteLabel({

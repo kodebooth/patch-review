@@ -97,6 +97,8 @@ async function doPullRequest(): Promise<void> {
     issue_number: pull.number
   })
 
+  console.log(JSON.stringify(labels))
+
   for (const label of labels.data) {
     if (label.name.startsWith('patch-review-')) {
       await octokit.rest.issues.deleteLabel({
