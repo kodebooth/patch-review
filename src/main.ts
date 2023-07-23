@@ -64,6 +64,7 @@ async function doPullRequest(): Promise<void> {
   const octokit = github.getOctokit(core.getInput('token'))
 
   console.log(JSON.stringify(octokit))
+  console.log(JSON.stringify(pullRequestPayload))
 
   const pullList = await octokit.rest.pulls.list({
     owner: pullRequestPayload.repository.owner.name!,

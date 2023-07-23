@@ -538,6 +538,7 @@ function doPullRequest() {
         yield wrkdirGitClient.push('diffhead');
         const octokit = github.getOctokit(core.getInput('token'));
         console.log(JSON.stringify(octokit));
+        console.log(JSON.stringify(pullRequestPayload));
         const pullList = yield octokit.rest.pulls.list({
             owner: pullRequestPayload.repository.owner.name,
             repo: pullRequestPayload.repository.name,
