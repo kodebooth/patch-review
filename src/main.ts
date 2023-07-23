@@ -110,14 +110,14 @@ async function doPullRequest(): Promise<void> {
   }
 
   await octokit.rest.issues.addLabels({
-    owner: pullRequestPayload.repository.owner.name!,
+    owner: pullRequestPayload.repository.owner.login!,
     repo: pullRequestPayload.repository.name,
     issue_number: pull.number,
     labels: [`patch-review-${headSha.substring(0, 7)}`]
   })
 
   await octokit.rest.repos.createCommitStatus({
-    owner: pullRequestPayload.repository.owner.name!,
+    owner: pullRequestPayload.repository.owner.login!,
     repo: pullRequestPayload.repository.name,
     sha: headSha,
     state: 'pending',
