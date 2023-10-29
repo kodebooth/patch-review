@@ -1,5 +1,6 @@
-import {exec} from '@actions/exec'
+import {execute} from './exec'
 import {glob} from 'glob'
+import {Result, Ok} from 'pratica'
 
 export interface PatchOptions {
   strip?: number
@@ -19,12 +20,10 @@ export class Patch {
     return DefaultPatchOptions.strip
   }
 
-  async apply(dir: string): Promise<number> {
-    return exec('patch', [
-      `--directory=${dir}`,
-      `--strip=${this.strip}`,
-      `--input=${this.file}`
-    ])
+  async apply(dir: string): Promise<Result<void, string>> {
+    return execute(
+      `patch --directory=${dir} --strip=${this.strip} --input=${this.file}`
+    )
   }
 }
 
@@ -43,11 +42,13 @@ export class Manager {
     }
   }
 
-  async patch(dir: string): Promise<void> {
+  async patch(dir: string): Promise<Result<void, string>> {
     for (const p of this.patches) {
-      if (await p.apply(dir)) {
-        throw new Error(`Failed to apply ${p.file} in ${dir}`)
+      const result = await p.apply(dir)
+      if (result.isErr()) {
+        return result
       }
     }
+    return Ok()
   }
 }

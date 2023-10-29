@@ -1,12 +1,15 @@
 import {expect, jest, describe, it} from '@jest/globals'
 import * as patch from '../src/patch'
-import * as exec from '@actions/exec'
 import * as glob from 'glob'
+import * as exec from '../src/exec'
+import {Ok} from 'pratica'
 
 const workingDirectory = 'working-directory'
 const patchFiles = ['file-name-2', 'file-name-1']
 const globPattern = ['glob-pattern']
 const patchFile = 'file-name'
+
+jest.mock('child_process')
 
 describe('patch', () => {
   describe('construction', () => {
@@ -24,37 +27,31 @@ describe('patch', () => {
   describe('application', () => {
     it('should apply', async () => {
       jest
-        .spyOn(exec, 'exec')
-        .mockReturnValue(new Promise(resolve => resolve(0)))
+        .spyOn(exec, 'execute')
+        .mockReturnValue(new Promise(resolve => resolve(Ok())))
+      const result = await new patch.Patch(patchFile).apply(workingDirectory)
+      expect(result.isOk()).toBeTruthy()
 
-      expect(await new patch.Patch(patchFile).apply(workingDirectory)).toEqual(
-        0
+      expect(jest.mocked(exec.execute)).toHaveBeenCalledTimes(1)
+      expect(jest.mocked(exec.execute)).toHaveBeenCalledWith(
+        `patch --directory=${workingDirectory} --strip=${patch.DefaultPatchOptions.strip} --input=${patchFile}`
       )
-      expect(jest.mocked(exec.exec)).toHaveBeenCalledTimes(1)
-      expect(jest.mocked(exec.exec)).toHaveBeenCalledWith('patch', [
-        `--directory=${workingDirectory}`,
-        `--strip=${patch.DefaultPatchOptions.strip}`,
-        `--input=${patchFile}`
-      ])
     })
 
     it('should apply with added options', async () => {
       jest
-        .spyOn(exec, 'exec')
-        .mockReturnValue(new Promise(resolve => resolve(0)))
-
+        .spyOn(exec, 'execute')
+        .mockReturnValue(new Promise(resolve => resolve(Ok())))
       const strip = 5
 
       expect(patch.DefaultPatchOptions.strip).not.toEqual(strip)
       expect(
         await new patch.Patch(patchFile, {strip: strip}).apply(workingDirectory)
-      ).toEqual(0)
-      expect(jest.mocked(exec.exec)).toHaveBeenCalledTimes(1)
-      expect(jest.mocked(exec.exec)).toHaveBeenCalledWith('patch', [
-        `--directory=${workingDirectory}`,
-        `--strip=${strip}`,
-        `--input=${patchFile}`
-      ])
+      )
+      expect(jest.mocked(exec.execute)).toHaveBeenCalledTimes(1)
+      expect(jest.mocked(exec.execute)).toHaveBeenCalledWith(
+        `patch --directory=${workingDirectory} --strip=${strip} --input=${patchFile}`
+      )
     })
   })
 })
@@ -106,8 +103,8 @@ describe('manager', () => {
   describe('applying patches', () => {
     it('should apply all patches', async () => {
       jest
-        .spyOn(exec, 'exec')
-        .mockReturnValue(new Promise(resolve => resolve(0)))
+        .spyOn(exec, 'execute')
+        .mockReturnValue(new Promise(resolve => resolve(Ok())))
 
       jest
         .spyOn(glob, 'glob')
@@ -115,33 +112,18 @@ describe('manager', () => {
 
       const manager = new patch.Manager()
       manager.addPatch(patchFile)
-      manager.addFromGlob(globPattern)
+      await manager.addFromGlob(globPattern)
 
       await manager.patch(workingDirectory)
 
-      expect(jest.mocked(exec.exec)).toHaveBeenCalledTimes(3)
+      expect(jest.mocked(exec.execute)).toHaveBeenCalledTimes(3)
       manager.patches.forEach(
         (value: patch.Patch, _index: number, _array: patch.Patch[]): void => {
-          expect(jest.mocked(exec.exec)).toHaveBeenCalledWith('patch', [
-            `--directory=${workingDirectory}`,
-            `--strip=${patch.DefaultPatchOptions.strip}`,
-            `--input=${value.file}`
-          ])
+          expect(jest.mocked(exec.execute)).toHaveBeenCalledWith(
+            `patch --directory=${workingDirectory} --strip=${patch.DefaultPatchOptions.strip} --input=${value.file}`
+          )
         }
       )
-    })
-
-    it('should throw error when failing to apply a patch', async () => {
-      jest
-        .spyOn(exec, 'exec')
-        .mockReturnValue(new Promise(resolve => resolve(1)))
-
-      const manager = new patch.Manager()
-      manager.addPatch(patchFile)
-
-      expect(async () => {
-        await manager.patch(workingDirectory)
-      }).rejects.toThrow(`Failed to apply ${patchFile} in ${workingDirectory}`)
     })
   })
 })

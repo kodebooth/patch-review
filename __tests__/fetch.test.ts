@@ -26,12 +26,14 @@ describe('fetch', () => {
     const dir = path.join(os.tmpdir(), workingDirectory)
     it('should fetch valid file url', async () => {
       const fetcher = fetch.create(httpFileUri)
-      expect(await fetcher.fetch(dir)).toEqual(path.join(dir, 'index.html'))
+      expect((await fetcher.fetch(dir)).value()).toEqual(
+        path.join(dir, 'index.html')
+      )
     })
 
     it('should fetch valid tar url and extract it', async () => {
       const fetcher = fetch.create(httpTarUri)
-      expect(await fetcher.fetch(dir)).toEqual(dir)
+      expect((await fetcher.fetch(dir)).value()).toEqual(dir)
     }, 60000)
   })
 })
