@@ -33,7 +33,7 @@
     "@octokit/webhooks-types": "^7.1.0",
     "glob": "^10.3.10",
     "path": "^0.12.7",
-    "simple-git": "^3.19.1",
+    "simple-git": "^3.22.0",
     "uri-js": "^4.4.1"
   },
   "devDependencies": {
